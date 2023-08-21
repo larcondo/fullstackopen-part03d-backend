@@ -19,6 +19,7 @@ const unknownEndpoint = (req, res) => {
 app.use(express.json())
 // app.use(requestLogger)
 app.use(cors())
+app.use(express.static('dist'))
 
 let notes = [
   {
@@ -34,6 +35,11 @@ let notes = [
   {
     id: 3,
     content: "GET and POST are the most important methods of HTTP protocol",
+    important: true
+  },
+  {
+    id: 4,
+    content: "Nota de PRUEBA",
     important: true
   }
 ]
