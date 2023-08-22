@@ -33,7 +33,7 @@ app.get('/api/notes', (req, res) => {
   })
 })
 
-app.get('/api/notes/:id', (req, res) => {
+app.get('/api/notes/:id', (req, res, next) => {
   Note.findById(req.params.id)
   .then( note => {
     if (note) {
@@ -42,10 +42,7 @@ app.get('/api/notes/:id', (req, res) => {
       res.status(404).end()
     }
   })
-  .catch( error => {
-    console.log(error)
-    res.status(400).send({ error: 'malformatted id' })
-  })
+  .catch( error => next(error))
 })
 
 const generateId = () => {
@@ -81,6 +78,19 @@ app.delete('/api/notes/:id', (req, res) => {
 })
 
 app.use(unknownEndpoint)
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  }
+
+  next(error)
+}
+
+// this has to be the last loaded middleware
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
