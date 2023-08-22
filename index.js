@@ -1,6 +1,7 @@
+require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
-const mongoose = require('mongoose')
+const Note = require('./models/note')
 const app = express()
 
 // Middleware
@@ -16,54 +17,11 @@ const requestLogger = (req, res, next) => {
 const unknownEndpoint = (req, res) => {
   res.status(404).send({ error: 'unknown endpoint' })
 }
-const password = process.argv[2]
-const url = `mongodb+srv://larcC1498:${password}@devcluster.f8xrxcr.mongodb.net/noteApp?retryWrites=true&w=majority`
-
-mongoose.set('strictQuery', false)
-mongoose.connect(url)
-
-const noteSchema = new mongoose.Schema({
-  content: String,
-  important: Boolean,
-})
-
-noteSchema.set('toJSON', {
-  transform: (document, returnedObject) => {
-    returnedObject.id = returnedObject._id.toString()
-    delete returnedObject._id
-    delete returnedObject.__v
-  }
-})
-
-const Note = mongoose.model('Note', noteSchema)
 
 app.use(express.json())
 // app.use(requestLogger)
 app.use(cors())
 app.use(express.static('dist'))
-
-// let notes = [
-//   {
-//     id: 1,
-//     content: "HTML is easy",
-//     important: true
-//   },
-//   {
-//     id: 2,
-//     content: "Browser can execute only JavaScript",
-//     important: false
-//   },
-//   {
-//     id: 3,
-//     content: "GET and POST are the most important methods of HTTP protocol",
-//     important: true
-//   },
-//   {
-//     id: 4,
-//     content: "Nota de PRUEBA",
-//     important: true
-//   }
-// ]
 
 app.get('/', (req, res) => {
   res.send('<h1>Hello World!</h1>')
@@ -121,7 +79,7 @@ app.delete('/api/notes/:id', (req, res) => {
 
 app.use(unknownEndpoint)
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
