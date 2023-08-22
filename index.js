@@ -5,13 +5,13 @@ const Note = require('./models/note')
 const app = express()
 
 // Middleware
-const requestLogger = (req, res, next) => {
-  console.log('Method: ', req.method);
-  console.log('Path:   ', req.path);
-  console.log('Body:   ', req.body);
-  console.log('---');
-  next()
-}
+// const requestLogger = (req, res, next) => {
+//   console.log('Method: ', req.method);
+//   console.log('Path:   ', req.path);
+//   console.log('Body:   ', req.body);
+//   console.log('---');
+//   next()
+// }
 
 // Middleware
 const unknownEndpoint = (req, res) => {
@@ -45,26 +45,23 @@ app.get('/api/notes/:id', (req, res, next) => {
   .catch( error => next(error))
 })
 
-const generateId = () => {
-  const maxId = notes.length > 0
-    ? Math.max(...notes.map(n => n.id ))
-    : 0
+// const generateId = () => {
+//   const maxId = notes.length > 0
+//     ? Math.max(...notes.map(n => n.id ))
+//     : 0
 
-  return maxId + 1
-}
+//   return maxId + 1
+// }
 
 app.post('/api/notes', (req, res, next) => {
   const body = req.body
-  
   if (body.content === undefined) {
     return res.status(400).json({ error: 'content missing' })
   }
-
   const note = new Note({
     content: body.content,
     important: body.important || false,
   })
-  
   note.save()
   .then( savedNote => {
     res.json(savedNote)
@@ -74,21 +71,17 @@ app.post('/api/notes', (req, res, next) => {
 
 app.put('/api/notes/:id', (req, res, next) => {
   const { content, important } = req.body
-  
-  Note.findByIdAndUpdate( 
-    req.params.id, 
-    { content, important }, 
-    { new: true, runValidators: true, context: 'query' }
-  )
+  Note.findByIdAndUpdate( req.params.id, { content, important }, { new: true, runValidators: true, context: 'query' } )
   .then( updatedNote => {
     res.json(updatedNote)
   })
   .catch( error => next(error))
 })
 
-app.delete('/api/notes/:id', (req, res) => {
+app.delete('/api/notes/:id', (req, res, next) => {
   Note.findByIdAndRemove(req.params.id)
   .then( result => {
+    console.log(result)
     res.status(204).end()
   })
   .catch( error => next(error))
